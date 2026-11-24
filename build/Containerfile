@@ -55,9 +55,11 @@ COPY config/kodi/           /etc/skel/.kodi/
 COPY config/themes/         /usr/share/stueos/themes/
 
 # ── StueOS-scripts og -ressurser ──────────────────────────────────────
+COPY scripts/check-hardware.sh /usr/share/stueos/check-hardware.sh
 COPY setup.sh               /usr/share/stueos/setup.sh
 COPY build/firstboot.sh     /usr/share/stueos/firstboot.sh
-RUN chmod +x /usr/share/stueos/setup.sh /usr/share/stueos/firstboot.sh
+COPY build/update-check.sh  /usr/share/stueos/update-check.sh
+RUN chmod +x /usr/share/stueos/setup.sh /usr/share/stueos/firstboot.sh /usr/share/stueos/update-check.sh
 
 # ── Just-oppskrifter (Justfile) ───────────────────────────────────────
 COPY build/Justfile         /usr/share/stueos/Justfile

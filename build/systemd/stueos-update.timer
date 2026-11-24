@@ -1,0 +1,12 @@
+[Unit]
+Description=StueOS ukentlig OTA-oppdateringssjekk
+Documentation=https://github.com/Seigmannmons/stue-os
+
+[Timer]
+# Mandag kl 03:00 — vil ikke forstyrre helgvisning
+OnCalendar=Mon *-*-* 03:00:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

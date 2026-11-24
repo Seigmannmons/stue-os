@@ -1,40 +1,275 @@
-# StueOS Justfile
-# Bruk: just <oppgave>
+# StueOS Justfile — kjør `just` for å se alle oppgaver
 # Installer just: rpm-ostree install just
+# Bruk:          just <oppgave> [<arg>]
 
 default:
     @just --list
 
-# Første gangs oppsett (flatpaks, temaer)
+# ═══════════════════════════════════════════════════════════
+# OPPSETT
+# ═══════════════════════════════════════════════════════════
+
+# Første gangs oppsett — Flatpak-apper, temaer
 firstboot:
     bash /usr/share/stueos/firstboot.sh
 
-# Kjør installeringsveiviseren
+# Kjør installeringsveiviseren (kopierer stueos.env → tjenestekonfig)
 setup:
     bash /usr/share/stueos/setup.sh
 
-# Sjekk hardware-status
+# Sjekk hardware: NVIDIA, Vulkan, iMon VFD, LIRC, Kodi, Steam
 check:
-    bash /path/to/check-hardware.sh
+    bash /usr/share/stueos/check-hardware.sh 2>/dev/null \
+        || bash "$(dirname "$(realpath "$0")")/../scripts/check-hardware.sh"
 
-# Oppdater StueOS-image
-update:
-    rpm-ostree update
-    @echo "Reboot for å aktivere ny image: systemctl reboot"
+# ═══════════════════════════════════════════════════════════
+# SYSTEM-INFO
+# ═══════════════════════════════════════════════════════════
 
-# Rebase til siste StueOS-image
+# Vis systeminformasjon: image, versjon, IP-adresser
+info:
+    @echo "── StueOS Systeminfo ──────────────────────────"
+    @rpm-ostree status --booted 2>/dev/null | head -8 || echo "(rpm-ostree ikke tilgjengelig)"
+    @echo ""
+    @echo "IP-adresser:"
+    @ip -4 addr show | awk '/inet / { print "  " $NF ": " $2 }' | grep -v "^  lo"
+    @echo ""
+    @echo "StueOS-tjenester:"
+    @systemctl is-active stueos-denon stueos-bluesound stueos-homey stueos-kodi-notify go2tv uxplay 2>/dev/null \
+        | paste - <(echo -e "stueos-denon\nstueos-bluesound\nstueos-homey\nstueos-kodi-notify\ngo2tv\nuxplay") \
+        | awk '{printf "  %-26s %s\n", $2, $1}' || true
+
+# ═══════════════════════════════════════════════════════════
+# TJENESTESTATUS
+# ═══════════════════════════════════════════════════════════
+
+# Vis status for alle StueOS-tjenester
+status:
+    systemctl status stueos-denon stueos-bluesound stueos-homey stueos-kodi-notify \
+        go2tv uxplay avahi-daemon --no-pager -l || true
+
+# Restart alle StueOS-tjenester
+restart:
+    @echo "Restarter alle StueOS-tjenester..."
+    systemctl restart stueos-denon stueos-bluesound stueos-homey \
+        stueos-kodi-notify go2tv uxplay 2>/dev/null || true
+    @echo "Ferdig."
+
+# Restart individuell tjeneste
+restart-denon:
+    systemctl restart stueos-denon
+
+restart-bluesound:
+    systemctl restart stueos-bluesound
+
+restart-homey:
+    systemctl restart stueos-homey
+
+restart-kodi-notify:
+    systemctl restart stueos-kodi-notify
+
+restart-go2tv:
+    systemctl restart go2tv
+
+restart-uxplay:
+    systemctl restart uxplay
+
+# ═══════════════════════════════════════════════════════════
+# LOGGER
+# ═══════════════════════════════════════════════════════════
+
+# Vis logg for alle StueOS-tjenester (siste 50 linjer + følg)
+logs:
+    journalctl -u stueos-denon -u stueos-bluesound -u stueos-homey \
+        -u stueos-kodi-notify -u go2tv -u uxplay -n 50 -f
+
+logs-denon:
+    journalctl -u stueos-denon -n 80 -f
+
+logs-bluesound:
+    journalctl -u stueos-bluesound -n 80 -f
+
+logs-homey:
+    journalctl -u stueos-homey -n 80 -f
+
+logs-kodi-notify:
+    journalctl -u stueos-kodi-notify -n 80 -f
+
+logs-go2tv:
+    journalctl -u go2tv -n 80 -f
+
+logs-uxplay:
+    journalctl -u uxplay -n 80 -f
+
+# ═══════════════════════════════════════════════════════════
+# TESTER
+# ═══════════════════════════════════════════════════════════
+
+# Send test-varsler til Kodi OSD
+test-notify:
+    @echo "Sender test-varsel til Kodi OSD..."
+    curl -sf -X POST http://localhost:8085/notify \
+        -H "Content-Type: application/json" \
+        -d '{"eventType":"Download","movie":{"title":"StueOS Test","year":2025},"movieFile":{"quality":{"quality":{"name":"4K HDR"}}}}' \
+        | python3 -m json.tool || echo "kodi-notify ikke tilgjengelig"
+
+# Test Denon AVR-tilkobling
+test-denon:
+    @echo "Tester Denon AVR..."
+    curl -sf http://localhost:8041/status | python3 -m json.tool \
+        || echo "Denon-tjeneste ikke tilgjengelig"
+
+# Test Bluesound-tilkobling
+test-bluesound:
+    @echo "Tester Bluesound..."
+    curl -sf http://localhost:8042/status | python3 -m json.tool \
+        || echo "Bluesound-tjeneste ikke tilgjengelig"
+
+# Test Homey-tilkobling
+test-homey:
+    @echo "Tester Homey..."
+    curl -sf http://localhost:8043/status | python3 -m json.tool \
+        || echo "Homey-tjeneste ikke tilgjengelig"
+
+# Test alle tjenester
+test:
+    @echo "── Tjenestehelse ───────────────────────────────"
+    @curl -sf http://localhost:8041/health | python3 -c "import sys,json;d=json.load(sys.stdin);print('  Denon:         ', d.get('status','?'), '—', d.get('avr','?'))" 2>/dev/null || echo "  Denon:          UTILGJENGELIG"
+    @curl -sf http://localhost:8042/health | python3 -c "import sys,json;d=json.load(sys.stdin);print('  Bluesound:     ', d.get('status','?'), '—', d.get('bluesound','?'))" 2>/dev/null || echo "  Bluesound:      UTILGJENGELIG"
+    @curl -sf http://localhost:8043/health | python3 -c "import sys,json;d=json.load(sys.stdin);print('  Homey:         ', d.get('status','?'), '—', d.get('homey','?'))" 2>/dev/null || echo "  Homey:          UTILGJENGELIG"
+    @curl -sf http://localhost:8085/health | python3 -c "import sys,json;d=json.load(sys.stdin);print('  kodi-notify:   ', d.get('status','?'), '—', d.get('kodi','?'))" 2>/dev/null || echo "  kodi-notify:    UTILGJENGELIG"
+    @systemctl is-active go2tv >/dev/null 2>&1 && echo "  go2tv:          aktiv (port 3000)" || echo "  go2tv:          INAKTIV"
+    @systemctl is-active uxplay >/dev/null 2>&1 && echo "  UxPlay:         aktiv (AirPlay 2)" || echo "  UxPlay:         INAKTIV"
+
+# ═══════════════════════════════════════════════════════════
+# KODI
+# ═══════════════════════════════════════════════════════════
+
+# Start Kodi (Flatpak)
+kodi:
+    flatpak run tv.kodi.Kodi
+
+# Vis Kodi-logg (siste 100 linjer)
+kodi-log:
+    tail -n 100 ~/.var/app/tv.kodi.Kodi/data/temp/kodi.log 2>/dev/null \
+        || tail -n 100 ~/.kodi/temp/kodi.log 2>/dev/null \
+        || echo "Finner ikke Kodi-logg"
+
+# Fullfør kjøring av Kodi
+kodi-kill:
+    flatpak kill tv.kodi.Kodi 2>/dev/null || pkill -f kodi || true
+
+# ADVARSEL: Tilbakestill Kodi-brukerdata (sletter alle innstillinger!)
+kodi-reset:
+    @echo "ADVARSEL: Dette sletter alle Kodi-innstillinger, addons og bibliotek!"
+    @echo "Trykk Enter for å fortsette eller Ctrl+C for å avbryte."
+    @read _confirm
+    rm -rf ~/.kodi/userdata ~/.var/app/tv.kodi.Kodi/data/userdata
+    @echo "Kodi-brukerdata slettet. Start Kodi for å konfigurere på nytt."
+
+# ═══════════════════════════════════════════════════════════
+# BACKUP OG GJENOPPRETTING
+# ═══════════════════════════════════════════════════════════
+
+# Lag sikkerhetskopi av Kodi-brukerdata og StueOS-konfig
+backup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    BDIR="${HOME}/stueos-backups"
+    STAMP=$(date +%Y%m%d-%H%M%S)
+    DEST="${BDIR}/stueos-backup-${STAMP}.tar.gz"
+    mkdir -p "$BDIR"
+    echo "Lager sikkerhetskopi → ${DEST}"
+    tar -czf "$DEST" \
+        --warning=no-file-changed \
+        -C "${HOME}" \
+        .config/stueos \
+        .kodi/userdata \
+        .var/app/tv.kodi.Kodi/data/userdata \
+        2>/dev/null || true
+    SIZE=$(du -sh "$DEST" | cut -f1)
+    echo "Sikkerhetskopi opprettet: ${DEST} (${SIZE})"
+    ls -lh "${BDIR}/"
+
+# Gjenopprett fra sikkerhetskopi
+restore BACKUP:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ ! -f "{{BACKUP}}" ]]; then
+        echo "Finner ikke: {{BACKUP}}"
+        exit 1
+    fi
+    echo "Gjenoppretter fra {{BACKUP}}..."
+    echo "ADVARSEL: Eksisterende konfig overskrives. Trykk Enter eller Ctrl+C."
+    read _confirm
+    tar -xzf "{{BACKUP}}" -C "${HOME}" --overwrite
+    echo "Gjenoppretting fullført. Start tjenestene på nytt:"
+    echo "  just restart"
+
+# Vis tilgjengelige sikkerhetskopier
+backups:
+    @ls -lhrt ~/stueos-backups/*.tar.gz 2>/dev/null || echo "Ingen sikkerhetskopier funnet i ~/stueos-backups/"
+
+# ═══════════════════════════════════════════════════════════
+# OTA-OPPDATERINGER (#29)
+# ═══════════════════════════════════════════════════════════
+
+# Sjekk om OTA-oppdatering er tilgjengelig (uten å installere)
+update-check:
+    @echo "Sjekker etter StueOS-oppdateringer..."
+    rpm-ostree upgrade --check 2>&1 || true
+
+# Last ned og installer OTA-oppdatering (krever omstart)
+update-now:
+    @echo "Oppdaterer StueOS-image..."
+    rpm-ostree upgrade
+    @echo ""
+    @echo "Oppdatering fullført. Start på nytt for å aktivere:"
+    @echo "  just reboot"
+
+# Rebase til siste StueOS-image fra GitHub Container Registry
 rebase:
     rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
-    @echo "Reboot for å aktivere: systemctl reboot"
+    @echo "Rebase fullført. Start på nytt: just reboot"
 
-# Vis status for StueOS-tjenester
-status:
-    systemctl status stueos-denon stueos-bluesound uxplay --no-pager || true
+# Start på nytt nå
+reboot:
+    @echo "Starter StueOS på nytt om 10 sekunder..."
+    sleep 10 && systemctl reboot
 
-# Vis logg for Denon-tjeneste
-logs-denon:
-    journalctl -u stueos-denon -f
+# Angre siste OTA-oppdatering (boot til forrige image)
+rollback:
+    rpm-ostree rollback
+    @echo "Tilbakestilling klargjort. Start på nytt for å aktivere forrige image:"
+    @echo "  just reboot"
 
-# Vis logg for Bluesound-tjeneste
-logs-bluesound:
-    journalctl -u stueos-bluesound -f
+# Aktiver ukentlig auto-oppdatering (mandag 03:00)
+enable-auto-update:
+    systemctl enable --now stueos-update.timer
+    @echo "Auto-oppdatering aktivert (mandag 03:00)"
+    @echo "Status: systemctl status stueos-update.timer"
+
+# Deaktiver ukentlig auto-oppdatering
+disable-auto-update:
+    systemctl disable --now stueos-update.timer
+    @echo "Auto-oppdatering deaktivert"
+
+# ═══════════════════════════════════════════════════════════
+# NETTVERK
+# ═══════════════════════════════════════════════════════════
+
+# Åpne go2tv web UI i standard nettleser
+go2tv:
+    @IP=$(hostname -I | awk '{print $1}')
+    @echo "go2tv: http://${IP}:3000"
+    xdg-open "http://localhost:3000" 2>/dev/null || echo "Åpne http://localhost:3000 i nettleseren"
+
+# Vis alle StueOS-nettverkstjenester og porter
+ports:
+    @echo "── StueOS nettverkstjenester ───────────────────"
+    @echo "  8041  Denon AVR control"
+    @echo "  8042  Bluesound control"
+    @echo "  8043  Homey flows"
+    @echo "  8085  Kodi OSD notify (webhook)"
+    @echo "  3000  go2tv Chromecast web UI"
+    @echo "  ----  UxPlay AirPlay 2 (mDNS)"

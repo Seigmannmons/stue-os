@@ -1,0 +1,15 @@
+[Unit]
+Description=StueOS OTA-oppdatering
+Documentation=https://github.com/Seigmannmons/stue-os
+After=network-online.target
+Wants=network-online.target
+# Ikke kjør hvis noen ser på noe i Kodi
+Conflicts=kodi.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/stueos/update-check.sh
+StandardOutput=journal
+StandardError=journal
+Nice=15
+IOSchedulingClass=idle
