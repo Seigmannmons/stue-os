@@ -38,7 +38,7 @@ RUN curl -fsSL \
 COPY services/ /opt/stueos/services/
 RUN pip3 install --prefix=/usr \
         denonavr \
-        pybluos \
+        httpx \
         "fastapi>=0.110" \
         "uvicorn[standard]" \
     && ostree container commit

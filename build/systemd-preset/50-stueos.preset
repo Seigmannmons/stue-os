@@ -3,6 +3,7 @@
 
 enable stueos-denon.service
 enable stueos-bluesound.service
+enable stueos-homey.service
 enable stueos-kodi-notify.service
 enable uxplay.service
 enable avahi-daemon.service

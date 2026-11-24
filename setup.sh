@@ -180,6 +180,20 @@ fi
 header "KODI-NOTIFY OG TJENESTER"
 # ═══════════════════════════════════════
 
+# Homey-tjeneste
+if [[ -n "${HOMEY_HOST:-}" && -n "${HOMEY_TOKEN:-}" ]]; then
+  cat > "${SERVICES_DIR}/homey-control.env" <<EOF
+HOMEY_HOST=${HOMEY_HOST}
+HOMEY_TOKEN=${HOMEY_TOKEN}
+HOMEY_FLOW_FILM_START=${HOMEY_FLOW_FILM_START:-}
+HOMEY_FLOW_FILM_STOPP=${HOMEY_FLOW_FILM_STOPP:-}
+HOMEY_FLOW_PAUSE=${HOMEY_FLOW_PAUSE:-}
+HOMEY_FLOW_RESUME=${HOMEY_FLOW_RESUME:-}
+SERVICE_PORT=8043
+EOF
+  ok "Homey konfigurert (${HOMEY_HOST})"
+fi
+
 # kodi-notify konfig (Kodi OSD-varsler fra Radarr/Sonarr på fjernserver)
 cat > "${SERVICES_DIR}/kodi-notify.env" <<EOF
 KODI_HOST=localhost
@@ -198,6 +212,9 @@ if [[ -n "${DENON_HOST:-}" ]]; then
 fi
 if [[ -n "${BLUESOUND_HOST:-}" ]]; then
   systemctl --user enable --now stueos-bluesound.service 2>/dev/null && ok "Bluesound-tjeneste startet" || warn "Bluesound: se journalctl"
+fi
+if [[ -n "${HOMEY_HOST:-}" && -n "${HOMEY_TOKEN:-}" ]]; then
+  systemctl --user enable --now stueos-homey.service 2>/dev/null && ok "Homey-tjeneste startet" || warn "Homey: se journalctl"
 fi
 
 # ═══════════════════════════════════════
