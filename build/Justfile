@@ -1,0 +1,40 @@
+# StueOS Justfile
+# Bruk: just <oppgave>
+# Installer just: rpm-ostree install just
+
+default:
+    @just --list
+
+# Første gangs oppsett (flatpaks, temaer)
+firstboot:
+    bash /usr/share/stueos/firstboot.sh
+
+# Kjør installeringsveiviseren
+setup:
+    bash /usr/share/stueos/setup.sh
+
+# Sjekk hardware-status
+check:
+    bash /path/to/check-hardware.sh
+
+# Oppdater StueOS-image
+update:
+    rpm-ostree update
+    @echo "Reboot for å aktivere ny image: systemctl reboot"
+
+# Rebase til siste StueOS-image
+rebase:
+    rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
+    @echo "Reboot for å aktivere: systemctl reboot"
+
+# Vis status for StueOS-tjenester
+status:
+    systemctl status stueos-denon stueos-bluesound uxplay --no-pager || true
+
+# Vis logg for Denon-tjeneste
+logs-denon:
+    journalctl -u stueos-denon -f
+
+# Vis logg for Bluesound-tjeneste
+logs-bluesound:
+    journalctl -u stueos-bluesound -f

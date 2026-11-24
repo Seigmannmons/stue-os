@@ -1,0 +1,7 @@
+# StueOS systemd service preset
+# Tjenester som aktiveres automatisk på første oppstart
+
+enable stueos-denon.service
+enable stueos-bluesound.service
+enable uxplay.service
+enable avahi-daemon.service

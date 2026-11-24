@@ -1,49 +1,69 @@
-# StueOS - Custom Bazzite image for living room PC
-# Fork of: ghcr.io/ublue-os/bazzite
-# Base: Bazzite with NVIDIA drivers
+# StueOS — Custom Bazzite image for living room PC
+# Base: ghcr.io/ublue-os/bazzite-nvidia
+#
+# Build:  podman build -t stueos -f build/Containerfile .
+# Rebase: rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
 
 ARG BASE_IMAGE="ghcr.io/ublue-os/bazzite-nvidia"
-ARG FEDORA_MAJOR_VERSION="40"
+ARG FEDORA_MAJOR_VERSION="41"
 
-FROM ${BASE_IMAGE}:latest
+FROM ${BASE_IMAGE}:${FEDORA_MAJOR_VERSION}
 
-# Install system packages via rpm-ostree
+# ── System packages via rpm-ostree ─────────────────────────────────────
+# Kodi comes from RPMFusion (included in Bazzite)
+# Flatpaks (Kodi skin, EmuDeck) are handled in build/firstboot.sh
 RUN rpm-ostree install \
-    kodi \
-    kodi-addon-service-xbmc-lcd \
-    libbluray \
-    libbluray-utils \
-    libcec \
-    lirc \
-    lcdproc \
-    uxplay \
-    avahi \
-    nss-mdns \
-    mpv \
+        libbluray \
+        libbluray-utils \
+        libcec \
+        lirc \
+        lcdproc \
+        uxplay \
+        avahi \
+        nss-mdns \
+        mpv \
+        python3-pip \
+        ntfy \
     && ostree container commit
 
-# Install go2tv for Chromecast receiving
-RUN rpm-ostree install golang \
-    && go install github.com/alexballas/go2tv/cmd/go2tv@latest \
+# ── go2tv (Chromecast receiver) — download release binary ──────────────
+ARG GO2TV_VERSION="1.9.5"
+RUN curl -fsSL \
+        "https://github.com/alexballas/go2tv/releases/download/v${GO2TV_VERSION}/go2tv-Linux_x86_64.tar.gz" \
+        | tar -xz -C /usr/local/bin go2tv \
+    && chmod +x /usr/local/bin/go2tv \
     && ostree container commit
 
-# System user for services
-RUN useradd -r -s /sbin/nologin stueos-svc || true
+# ── Python-tjenester (Denon AVR + Bluesound) ───────────────────────────
+COPY services/ /opt/stueos/services/
+RUN pip3 install --prefix=/usr \
+        denonavr \
+        pybluos \
+        "fastapi>=0.110" \
+        "uvicorn[standard]" \
+    && ostree container commit
 
-# Copy configuration files
+# ── Systemd-tjenester ─────────────────────────────────────────────────
+COPY build/systemd/ /usr/lib/systemd/system/
+COPY build/systemd-preset/50-stueos.preset /usr/lib/systemd/system-preset/
+
+# ── Konfigurasjonsmaler ───────────────────────────────────────────────
+# Kopieres til /etc/skel slik at nye brukere får dem automatisk
 COPY config/lirc/           /etc/lirc/
 COPY config/kodi/           /etc/skel/.kodi/
-COPY services/              /opt/stueos/services/
+COPY config/themes/         /usr/share/stueos/themes/
 
-# Install Python services
-RUN pip3 install denonavr pybluos fastapi uvicorn \
-    && ostree container commit
+# ── StueOS-scripts og -ressurser ──────────────────────────────────────
+COPY setup.sh               /usr/share/stueos/setup.sh
+COPY build/firstboot.sh     /usr/share/stueos/firstboot.sh
+RUN chmod +x /usr/share/stueos/setup.sh /usr/share/stueos/firstboot.sh
 
-# Enable services
-COPY build/systemd/         /etc/systemd/system/
-RUN systemctl enable stueos-denon.service \
-    && systemctl enable stueos-bluesound.service \
-    && systemctl enable uxplay.service
+# ── Just-oppskrifter (Justfile) ───────────────────────────────────────
+COPY build/Justfile         /usr/share/stueos/Justfile
 
+# ── OCI-metadata ─────────────────────────────────────────────────────
 LABEL org.opencontainers.image.title="StueOS"
-LABEL org.opencontainers.image.description="Custom Bazzite image for living room PC"
+LABEL org.opencontainers.image.description="Custom Bazzite-based living room OS — Antec Fusion Remote, Kodi, Steam, EmuDeck"
+LABEL org.opencontainers.image.url="https://github.com/Seigmannmons/stue-os"
+LABEL org.opencontainers.image.source="https://github.com/Seigmannmons/stue-os"
+LABEL org.opencontainers.image.vendor="Seigmannmons"

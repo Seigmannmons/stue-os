@@ -1,0 +1,71 @@
+name: Generate StueOS ISO
+
+on:
+  workflow_run:
+    workflows: ["Build StueOS image"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image-tag å bygge ISO fra (default: latest)'
+        required: false
+        default: 'latest'
+
+jobs:
+  iso:
+    name: Generate installable ISO
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate ISO with isogenerator
+        uses: jasonn3/build-container-installer@v1.2.3
+        id: build
+        with:
+          arch: x86_64
+          image_name: stueos
+          image_repo: ghcr.io/seigmannmons
+          image_tag: ${{ inputs.version || 'latest' }}
+          version: 41
+          variant: Silverblue
+          iso_name: stueos-${{ github.ref_name }}.iso
+          enable_cache_dnf: false
+          enable_cache_skopeo: false
+
+      - name: Upload ISO as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stueos-iso
+          path: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}.sha256
+          retention-days: 30
+
+      - name: Publish ISO to release (manuell trigger)
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: iso-${{ github.run_number }}
+          name: StueOS ISO — bygg ${{ github.run_number }}
+          body: |
+            Installerbar ISO bygd fra `ghcr.io/seigmannmons/stueos:${{ inputs.version || 'latest' }}`.
+
+            **Installasjon:**
+            1. Flash ISO til USB med Balena Etcher
+            2. Boot og installer
+            3. Kjør veiviseren: `bash /usr/share/stueos/setup.sh`
+
+            **Rebase fra eksisterende Bazzite:**
+            ```
+            rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
+            ```
+          files: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}.sha256
