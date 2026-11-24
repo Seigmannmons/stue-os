@@ -9,10 +9,11 @@ ARG FEDORA_MAJOR_VERSION="45"
 
 FROM ${BASE_IMAGE}:stable-${FEDORA_MAJOR_VERSION}
 
-# ── System packages via rpm-ostree ─────────────────────────────────────
+# ── System packages via dnf ────────────────────────────────────────────
 # Kodi comes from RPMFusion (included in Bazzite)
 # Flatpaks (Kodi skin, EmuDeck) are handled in build/firstboot.sh
-RUN rpm-ostree install \
+# ntfy-varsler sendes via curl (ikke ntfy-pakken) — trengs ikke her
+RUN dnf install -y --setopt=install_weak_deps=False \
         libbluray \
         libbluray-utils \
         libcec \
@@ -23,16 +24,14 @@ RUN rpm-ostree install \
         nss-mdns \
         mpv \
         python3-pip \
-        ntfy \
-    && ostree container commit
+    && dnf clean all
 
 # ── go2tv (Chromecast receiver) — download release binary ──────────────
 ARG GO2TV_VERSION="1.9.5"
 RUN curl -fsSL \
         "https://github.com/alexballas/go2tv/releases/download/v${GO2TV_VERSION}/go2tv-Linux_x86_64.tar.gz" \
         | tar -xz -C /usr/local/bin go2tv \
-    && chmod +x /usr/local/bin/go2tv \
-    && ostree container commit
+    && chmod +x /usr/local/bin/go2tv
 
 # ── Python-tjenester (Denon AVR + Bluesound) ───────────────────────────
 COPY services/ /opt/stueos/services/
@@ -40,8 +39,7 @@ RUN pip3 install --prefix=/usr \
         denonavr \
         httpx \
         "fastapi>=0.110" \
-        "uvicorn[standard]" \
-    && ostree container commit
+        "uvicorn[standard]"
 
 # ── Systemd-tjenester ─────────────────────────────────────────────────
 COPY build/systemd/ /usr/lib/systemd/system/
