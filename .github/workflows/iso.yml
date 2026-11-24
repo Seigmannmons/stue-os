@@ -44,8 +44,8 @@ jobs:
         with:
           name: stueos-iso
           path: |
-            ${{ steps.build.outputs.iso_path }}
-            ${{ steps.build.outputs.iso_path }}.sha256
+            ${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_name }}-CHECKSUM
           retention-days: 30
 
       - name: Publish ISO to release (manuell trigger)
@@ -58,7 +58,7 @@ jobs:
             Installerbar ISO bygd fra `ghcr.io/seigmannmons/stueos:${{ inputs.version || 'latest' }}`.
 
             **Installasjon:**
-            1. Flash ISO til USB med Balena Etcher
+            1. Flash ISO til USB med Rufus eller Balena Etcher
             2. Boot og installer
             3. Kjør veiviseren: `bash /usr/share/stueos/setup.sh`
 
@@ -67,5 +67,5 @@ jobs:
             rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
             ```
           files: |
-            ${{ steps.build.outputs.iso_path }}
-            ${{ steps.build.outputs.iso_path }}.sha256
+            ${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_name }}-CHECKSUM
