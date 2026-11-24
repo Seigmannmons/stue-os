@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  StueOS Fusion — Kodi Color Theme
+  Target skin: Arctic Zephyr: Reloaded (skin.arctic.zephyr.2.reloaded)
+
+  INSTALLATION:
+  1. Install Arctic Zephyr: Reloaded from Kodi Add-on repository
+  2. Copy this file to:
+     ~/.kodi/addons/skin.arctic.zephyr.2.reloaded/720p/includes/colors/
+     (or the equivalent 1080p path if using a 1080p skin resolution)
+  3. In Kodi: Settings > Interface > Skin > Configure skin > Colors
+     Select "StueOS Fusion"
+
+  ALTERNATIVE (manual override):
+  Edit the skin's existing color XML and replace the hex values below.
+  The skin stores colors in ARGB hex format: AARRGGBB
+-->
+<colors>
+
+  <!-- ══════════════════════════════════════
+       CORE BACKGROUNDS
+       ══════════════════════════════════════ -->
+
+  <!-- Deep space — primary background -->
+  <color name="Background">ff0a0c10</color>
+
+  <!-- Slightly lighter — card/panel backgrounds -->
+  <color name="BackgroundTop">ff0d1017</color>
+  <color name="BackgroundBottom">ff0a0c10</color>
+
+  <!-- Surface — focused/hovered panels -->
+  <color name="MenuBackground">ff131620</color>
+  <color name="MenuBackgroundFocus">ff181c2a</color>
+
+  <!-- OSD (video overlay) -->
+  <color name="OSDBackground">cc0a0c10</color>
+  <color name="OSDBackgroundFocus">dd131620</color>
+
+  <!-- Overlay / dialog background -->
+  <color name="OverlayBackground">e50a0c10</color>
+
+  <!-- ══════════════════════════════════════
+       TEXT COLORS
+       ══════════════════════════════════════ -->
+
+  <!-- Primary text -->
+  <color name="MenuText">ffdde2f0</color>
+  <color name="MenuTextFocus">ffdde2f0</color>
+  <color name="MenuTextShadow">cc000000</color>
+
+  <!-- Secondary / metadata text -->
+  <color name="MenuTextDim">ff8893a8</color>
+  <color name="MenuTextShadowDim">88000000</color>
+
+  <!-- Active / highlighted text (amber) -->
+  <color name="MenuTextActive">ffe8a63c</color>
+  <color name="MenuTextActiveShadow">cc000000</color>
+
+  <!-- Title text on media info screens -->
+  <color name="MediaTitle">ffdde2f0</color>
+  <color name="MediaSubtitle">ff8893a8</color>
+
+  <!-- Button text -->
+  <color name="ButtonText">ffdde2f0</color>
+  <color name="ButtonTextFocus">ff0a0c10</color>
+  <color name="ButtonTextDisabled">ff2e3448</color>
+
+  <!-- ══════════════════════════════════════
+       AMBER ACCENT (primary brand color)
+       ══════════════════════════════════════ -->
+
+  <!-- Main accent — VFD-inspired warm amber -->
+  <color name="AccentColor">ffe8a63c</color>
+  <color name="AccentColorDim">40e8a63c</color>
+  <color name="AccentColorBright">fff0bc6e</color>
+
+  <!-- Selection / focus indicator -->
+  <color name="SelectionBackground">25e8a63c</color>
+  <color name="SelectionBorder">ffe8a63c</color>
+  <color name="SelectionText">ffe8a63c</color>
+
+  <!-- Focus ring on widgets/buttons -->
+  <color name="FocusColor">ffe8a63c</color>
+  <color name="FocusGlow">40e8a63c</color>
+
+  <!-- ══════════════════════════════════════
+       PROGRESS BARS / RATINGS
+       ══════════════════════════════════════ -->
+
+  <!-- Progress/seek bar fill -->
+  <color name="ProgressBarFill">ffe8a63c</color>
+  <color name="ProgressBarEmpty">ff242840</color>
+  <color name="ProgressBarBackground">ff131620</color>
+
+  <!-- Star rating (amber stars) -->
+  <color name="RatingFilled">ffe8a63c</color>
+  <color name="RatingEmpty">ff242840</color>
+
+  <!-- Volume bar -->
+  <color name="VolumeBarFill">ffe8a63c</color>
+  <color name="VolumeBarEmpty">ff242840</color>
+
+  <!-- ══════════════════════════════════════
+       STATUS COLORS
+       ══════════════════════════════════════ -->
+
+  <!-- Available / success (green) -->
+  <color name="Available">ff56c47a</color>
+  <color name="Watched">ff56c47a</color>
+  <color name="Downloaded">ff56c47a</color>
+
+  <!-- Warning / partial (amber — same as accent) -->
+  <color name="InProgress">ffe8a63c</color>
+  <color name="PartiallyWatched">ffe8a63c</color>
+
+  <!-- Error / unavailable (red) -->
+  <color name="Unavailable">ffde5a5a</color>
+  <color name="Missing">ffde5a5a</color>
+
+  <!-- Info / link (blue) -->
+  <color name="InfoColor">ff4a8fd4</color>
+  <color name="LinkColor">ff4a8fd4</color>
+
+  <!-- ══════════════════════════════════════
+       BORDERS & SEPARATORS
+       ══════════════════════════════════════ -->
+
+  <!-- Standard border -->
+  <color name="MenuBorder">ff242840</color>
+  <color name="MenuBorderFocus">ffe8a63c</color>
+  <color name="Separator">ff1e2336</color>
+  <color name="SeparatorDim">88242840</color>
+
+  <!-- ══════════════════════════════════════
+       THUMBNAILS / ART PLACEHOLDER
+       ══════════════════════════════════════ -->
+
+  <color name="ThumbnailBackground">ff131620</color>
+  <color name="ThumbnailBorder">ff242840</color>
+  <color name="ThumbnailBorderFocus">ffe8a63c</color>
+
+  <!-- ══════════════════════════════════════
+       NOTIFICATIONS / OSD TEXT
+       ══════════════════════════════════════ -->
+
+  <color name="NotificationBackground">ee131620</color>
+  <color name="NotificationBorder">ffe8a63c</color>
+  <color name="NotificationTitle">ffe8a63c</color>
+  <color name="NotificationText">ffdde2f0</color>
+
+  <!-- ══════════════════════════════════════
+       HOME SCREEN WIDGETS
+       ══════════════════════════════════════ -->
+
+  <!-- Widget card background -->
+  <color name="WidgetBackground">ff131620</color>
+  <color name="WidgetBackgroundFocus">ff181c2a</color>
+  <color name="WidgetBorder">ff242840</color>
+  <color name="WidgetBorderFocus">ffe8a63c</color>
+  <color name="WidgetTitle">ff8893a8</color>
+  <color name="WidgetTitleFocus">ffe8a63c</color>
+
+  <!-- ══════════════════════════════════════
+       MEDIA INFO PAGE (movie/TV detail)
+       ══════════════════════════════════════ -->
+
+  <!-- Fanart overlay gradient — darken fanart for readability -->
+  <color name="FanartOverlay">e00a0c10</color>
+  <color name="FanartOverlayLight">880a0c10</color>
+
+  <!-- Genre/year/runtime badges -->
+  <color name="BadgeBackground">33dde2f0</color>
+  <color name="BadgeText">ffdde2f0</color>
+
+  <!-- Play button -->
+  <color name="PlayButtonBackground">ffe8a63c</color>
+  <color name="PlayButtonText">ff0a0c10</color>
+  <color name="PlayButtonBackgroundFocus">fff0bc6e</color>
+
+  <!-- ══════════════════════════════════════
+       KEYBOARD / VIRTUAL INPUT
+       ══════════════════════════════════════ -->
+
+  <color name="KeyboardBackground">ff131620</color>
+  <color name="KeyboardBorder">ff242840</color>
+  <color name="KeyboardKey">ff181c2a</color>
+  <color name="KeyboardKeyFocus">ff242840</color>
+  <color name="KeyboardKeyPressed">ffe8a63c</color>
+  <color name="KeyboardText">ffdde2f0</color>
+  <color name="KeyboardTextFocus">ff0a0c10</color>
+
+  <!-- ══════════════════════════════════════
+       SPINNER / LOADING INDICATOR
+       ══════════════════════════════════════ -->
+
+  <color name="SpinnerColor">ffe8a63c</color>
+  <color name="SpinnerBackground">ff131620</color>
+
+</colors>

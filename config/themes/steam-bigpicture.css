@@ -1,0 +1,250 @@
+/*
+ * StueOS Fusion — Steam Big Picture / Game Mode CSS patch
+ *
+ * Framework: Millennium (https://github.com/SteamClientHomebrew/Millennium)
+ * Install:   ~/.local/share/Steam/skins/stueos-fusion/skin.json  (see below)
+ *
+ * skin.json:
+ * {
+ *   "name": "StueOS Fusion",
+ *   "author": "StueOS",
+ *   "Steam-WebKit": "stueos-fusion.css"
+ * }
+ *
+ * Place this file as: ~/.local/share/Steam/skins/stueos-fusion/stueos-fusion.css
+ * Then select "StueOS Fusion" in Steam > Settings > Interface > Steam Skin
+ *
+ * NOTE: Steam Game Mode (Deck UI / gamescope) uses a React app with hashed CSS
+ * class names. These selectors target CSS custom properties and stable structural
+ * selectors where possible, but may need updating after Steam updates.
+ */
+
+/* ══════════════════════════════════════════
+   COLOR TOKENS — override Steam's variables
+   ══════════════════════════════════════════ */
+:root {
+  /* Core palette */
+  --stueos-bg:          #0a0c10;
+  --stueos-bg2:         #0d1017;
+  --stueos-surface:     #131620;
+  --stueos-surface2:    #181c2a;
+  --stueos-border:      #242840;
+  --stueos-amber:       #e8a63c;
+  --stueos-amber-dim:   rgba(232, 166, 60, 0.15);
+  --stueos-amber-b:     rgba(232, 166, 60, 0.3);
+  --stueos-blue:        #4a8fd4;
+  --stueos-green:       #56c47a;
+  --stueos-red:         #de5a5a;
+  --stueos-text:        #dde2f0;
+  --stueos-text-muted:  #8893a8;
+
+  /* Override Steam's own variables where they exist */
+  --colorNeutral: var(--stueos-bg);
+  --colorNeutralBright: var(--stueos-surface2);
+  --colorBorderTone1: var(--stueos-border);
+  --colorHighlight: var(--stueos-amber);
+}
+
+/* ══════════════════════════
+   GLOBAL BACKGROUND
+   ══════════════════════════ */
+body,
+.GamepadMainPageDesktopFrame_Container_m3OXX,
+.FullscreenOverlayContainer_Container_3NMjl {
+  background-color: var(--stueos-bg) !important;
+}
+
+/* ══════════════════════════
+   MAIN HEADER / NAV BAR
+   ══════════════════════════ */
+.GamepadMainPageDesktopFrame_Header_2rIkO,
+.GamepadMainPageHeader_Header_12eYn,
+[class*="Header_Header"] {
+  background-color: rgba(10, 12, 16, 0.95) !important;
+  border-bottom: 1px solid var(--stueos-border) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Nav items */
+[class*="NavMenuItem_Title"],
+[class*="Tab_Label"] {
+  color: var(--stueos-text-muted) !important;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+[class*="NavMenuItem_Active"] [class*="NavMenuItem_Title"],
+[class*="Tab_Active"] [class*="Tab_Label"],
+[class*="NavMenuItem_Title"]:hover {
+  color: var(--stueos-amber) !important;
+}
+
+/* ══════════════════════════
+   FOCUS RING (controller nav)
+   The most important visual for a TV-first interface
+   ══════════════════════════ */
+*:focus-visible,
+[data-focused="true"],
+[class*="_Focused"],
+[class*="_focused"],
+[class*="gpfocuswithin"],
+.gpfocus {
+  outline: 2px solid var(--stueos-amber) !important;
+  outline-offset: 2px !important;
+  background-color: var(--stueos-amber-dim) !important;
+  box-shadow: 0 0 12px var(--stueos-amber-dim) !important;
+}
+
+/* ══════════════════════════
+   GAME CARDS / THUMBNAILS
+   ══════════════════════════ */
+[class*="GameCapsule_Container"],
+[class*="AppCapsule_Container"],
+[class*="LibraryCapsule_Container"] {
+  border-radius: 6px !important;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+[class*="GameCapsule_Container"]:hover,
+[class*="AppCapsule_Container"]:hover,
+[class*="GameCapsule_Container"][data-focused="true"],
+[class*="AppCapsule_Container"][data-focused="true"],
+[class*="LibraryCapsule_Container"][data-focused="true"] {
+  border-color: var(--stueos-amber) !important;
+  box-shadow: 0 0 16px var(--stueos-amber-dim) !important;
+}
+
+/* ══════════════════════════
+   BUTTONS
+   ══════════════════════════ */
+/* Primary (play) button */
+[class*="PlayButton"],
+[class*="gpButton_Primary"],
+[class*="Button_Primary"],
+.btn_green_steamui,
+.btn_blue_steamui {
+  background-color: var(--stueos-amber) !important;
+  color: #0a0c10 !important;
+  border: none !important;
+  border-radius: 4px !important;
+  font-weight: 700 !important;
+}
+
+[class*="PlayButton"]:hover,
+[class*="gpButton_Primary"]:hover {
+  background-color: #f0bc6e !important;
+}
+
+/* Secondary buttons */
+[class*="gpButton_Secondary"],
+[class*="Button_Secondary"],
+.btn_darkblue_steamui {
+  background-color: var(--stueos-surface2) !important;
+  color: var(--stueos-text) !important;
+  border: 1px solid var(--stueos-border) !important;
+  border-radius: 4px !important;
+}
+
+/* ══════════════════════════
+   MODALS / DIALOGS
+   ══════════════════════════ */
+[class*="ModalOverlayContent_ModalOverlayBackground"],
+[class*="FullscreenDialog_Background"],
+[class*="Dialog_Background"] {
+  background-color: rgba(10, 12, 16, 0.92) !important;
+  backdrop-filter: blur(10px);
+}
+
+[class*="ModalOverlayContent_ModalOverlayContent"],
+[class*="FullscreenDialog_Dialog"],
+[class*="Dialog_Modal"] {
+  background-color: var(--stueos-surface) !important;
+  border: 1px solid var(--stueos-border) !important;
+  border-radius: 10px !important;
+  color: var(--stueos-text) !important;
+}
+
+/* ══════════════════════════
+   PROGRESS BARS
+   ══════════════════════════ */
+[class*="ProgressBar_Fill"],
+[class*="DownloadBar_Fill"],
+progress {
+  background-color: var(--stueos-amber) !important;
+}
+
+[class*="ProgressBar_Container"],
+[class*="DownloadBar_Container"],
+progress::-webkit-progress-bar {
+  background-color: var(--stueos-surface2) !important;
+  border-radius: 2px !important;
+}
+
+/* ══════════════════════════
+   NOTIFICATIONS / TOASTS
+   ══════════════════════════ */
+[class*="NotificationToast_Container"],
+[class*="Toast_Container"] {
+  background-color: var(--stueos-surface) !important;
+  border: 1px solid var(--stueos-border) !important;
+  border-radius: 8px !important;
+  color: var(--stueos-text) !important;
+}
+
+[class*="NotificationToast_Title"],
+[class*="Toast_Title"] {
+  color: var(--stueos-amber) !important;
+}
+
+/* ══════════════════════════
+   TYPOGRAPHY
+   ══════════════════════════ */
+body, * {
+  /* Fallback if Space Grotesk isn't available system-wide */
+  --default-font: 'Motiva Sans', 'Space Grotesk', system-ui, sans-serif;
+}
+
+[class*="Title"],
+[class*="_Title"],
+[class*="Heading"],
+h1, h2, h3 {
+  color: var(--stueos-text) !important;
+  font-weight: 700;
+}
+
+[class*="Subtitle"],
+[class*="Description"],
+[class*="Metadata"],
+[class*="_Meta"] {
+  color: var(--stueos-text-muted) !important;
+}
+
+/* ══════════════════════════
+   SCROLLBARS
+   ══════════════════════════ */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--stueos-bg2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stueos-border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stueos-amber);
+}
+
+/* ══════════════════════════
+   SELECTION
+   ══════════════════════════ */
+::selection {
+  background-color: var(--stueos-amber-dim);
+  color: var(--stueos-amber);
+}
