@@ -27,11 +27,13 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     && dnf clean all
 
 # ── go2tv (Chromecast receiver) — download release binary ──────────────
-ARG GO2TV_VERSION="1.9.5"
+ARG GO2TV_VERSION="2.9.0"
 RUN curl -fsSL \
-        "https://github.com/alexballas/go2tv/releases/download/v${GO2TV_VERSION}/go2tv-Linux_x86_64.tar.gz" \
-        | tar -xz -C /usr/local/bin go2tv \
-    && chmod +x /usr/local/bin/go2tv
+        "https://github.com/alexballas/go2tv/releases/download/v${GO2TV_VERSION}/go2tv_v${GO2TV_VERSION}_linux_amd64.zip" \
+        -o /tmp/go2tv.zip \
+    && python3 -m zipfile -e /tmp/go2tv.zip /tmp/go2tv/ \
+    && find /tmp/go2tv/ -name 'go2tv' -type f -exec install -m 755 {} /usr/local/bin/go2tv \; \
+    && rm -rf /tmp/go2tv.zip /tmp/go2tv/
 
 # ── Python-tjenester (Denon AVR + Bluesound) ───────────────────────────
 COPY services/ /opt/stueos/services/
