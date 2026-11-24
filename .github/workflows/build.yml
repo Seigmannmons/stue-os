@@ -5,9 +5,12 @@ on:
     branches: [main]
     paths:
       - 'build/Containerfile'
+      - 'build/Justfile'
       - 'build/systemd/**'
       - 'build/firstboot.sh'
+      - 'build/update-check.sh'
       - 'config/**'
+      - 'scripts/**'
       - 'services/**'
       - 'setup.sh'
   schedule:

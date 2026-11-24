@@ -5,9 +5,9 @@
 # Rebase: rpm-ostree rebase ostree-unverified-registry:ghcr.io/seigmannmons/stueos:latest
 
 ARG BASE_IMAGE="ghcr.io/ublue-os/bazzite-nvidia"
-ARG FEDORA_MAJOR_VERSION="41"
+ARG FEDORA_MAJOR_VERSION="45"
 
-FROM ${BASE_IMAGE}:${FEDORA_MAJOR_VERSION}
+FROM ${BASE_IMAGE}:stable-${FEDORA_MAJOR_VERSION}
 
 # ── System packages via rpm-ostree ─────────────────────────────────────
 # Kodi comes from RPMFusion (included in Bazzite)

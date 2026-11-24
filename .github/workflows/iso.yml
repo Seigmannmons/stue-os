@@ -33,7 +33,7 @@ jobs:
           image_name: stueos
           image_repo: ghcr.io/seigmannmons
           image_tag: ${{ inputs.version || 'latest' }}
-          version: 41
+          version: 45
           variant: Silverblue
           iso_name: stueos-${{ github.ref_name }}.iso
           enable_cache_dnf: false
