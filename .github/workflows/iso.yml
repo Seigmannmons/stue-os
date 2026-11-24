@@ -26,14 +26,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate ISO with isogenerator
-        uses: jasonn3/build-container-installer@v1.2.3
+        uses: jasonn3/build-container-installer@v1.5.0
         id: build
         with:
           arch: x86_64
           image_name: stueos
           image_repo: ghcr.io/seigmannmons
           image_tag: ${{ inputs.version || 'latest' }}
-          version: 45
+          version: 44
           variant: Silverblue
           iso_name: stueos-${{ github.ref_name }}.iso
           enable_cache_dnf: false
