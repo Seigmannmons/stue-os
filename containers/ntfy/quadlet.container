@@ -1,0 +1,28 @@
+# ntfy — self-hosted push-varsler til telefoner
+# WebUI og API: http://localhost:2586
+# Telefon-app: https://ntfy.sh (iOS/Android, gratis)
+#
+# Radarr/Sonarr: Settings → Connect → ntfy
+#   Server URL: http://<maskin-IP>:2586
+#   Topic: stueos-stue   (eller verdi fra stueos.env NTFY_TOPIC)
+
+[Unit]
+Description=ntfy - Push notification server
+After=network.target
+
+[Container]
+Image=binwiederhier/ntfy:latest
+AutoUpdate=registry
+ContainerName=ntfy
+
+PublishPort=2586:80
+Volume=%h/media/config/ntfy:/etc/ntfy:Z
+Volume=%h/.local/share/ntfy:/var/lib/ntfy:Z
+
+Exec=serve
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

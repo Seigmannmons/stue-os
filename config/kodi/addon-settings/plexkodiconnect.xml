@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Plexkodiconnect (PKC) innstillinger
+  Kopieres til: ~/.kodi/userdata/addon_data/plugin.video.plexkodiconnect/settings.xml
+  ELLER sett via Kodi UI: Add-ons → PlexKodiConnect → Konfigurasjon
+
+  Fremgangsmåte for installasjon:
+  1. Kodi → Innstillinger → Addons → Installer fra zip
+     Last ned PKC fra: https://github.com/croneter/PlexKodiConnect/releases
+  2. Aktiver add-on og logg inn med Plex-konto
+  3. For 4K Direct Play: sett maxVideoWidth=3840, maxVideoHeight=2160
+
+  Direct Play (ingen transcoding) krever:
+  - Plex Media Server på samme nettverk
+  - Kodi på samme nettverk som server
+  - Korrekt kodek installert (HEVC/H.265 støttes av GTX 1660 Super)
+-->
+<settings version="2">
+  <!-- Plassering av Plex Media Server -->
+  <setting id="plexToken"></setting>
+  <setting id="plexLogin"></setting>
+  <setting id="machineIdentifier"></setting>
+
+  <!-- Avspilling — alltid Direct Play, aldri transcoding -->
+  <setting id="remoteDelay">750</setting>
+  <setting id="syncBeforePlayback">false</setting>
+  <setting id="directPlay">true</setting>
+  <setting id="hqResize">false</setting>
+
+  <!-- 4K / HDR -->
+  <setting id="maxVideoWidth">3840</setting>
+  <setting id="maxVideoHeight">2160</setting>
+  <setting id="maxVideoBitrate">0</setting>
+
+  <!-- Norsk metadata-språk -->
+  <setting id="metadataLanguage">nb</setting>
+
+  <!-- Synkroniser ved oppstart -->
+  <setting id="enableBackgroundSync">true</setting>
+  <setting id="syncIntervalHours">12</setting>
+</settings>

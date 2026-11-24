@@ -1,0 +1,17 @@
+[Unit]
+Description=StueOS Kodi Notify — Radarr/Sonarr webhook til Kodi OSD
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stueos
+EnvironmentFile=/etc/stueos/services/kodi-notify.env
+ExecStart=/usr/bin/python3 /opt/stueos/services/kodi-notify/main.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

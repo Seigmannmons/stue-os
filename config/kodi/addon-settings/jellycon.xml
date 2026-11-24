@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  JellyCon innstillinger
+  Kopieres til: ~/.kodi/userdata/addon_data/plugin.video.jellycon/settings.xml
+
+  Installasjon:
+  1. Kodi → Innstillinger → Addons → Installer fra zip
+     Last ned JellyCon: https://github.com/jellyfin/jellycon/releases
+  2. Legg til Jellyfin-server og logg inn
+
+  For 4K HDR uten transcoding — bruk Jellyfin MPV Shim i stedet:
+    pip3 install jellyfin-mpv-shim
+    jellyfin-mpv-shim
+  MPV Shim bruker lokal MPV med Vulkan og støtter HDR pass-through.
+-->
+<settings version="2">
+  <setting id="server_address">http://localhost:8096</setting>
+  <setting id="api_key"></setting>
+  <setting id="user_id"></setting>
+
+  <!-- Direct Stream — ingen transcoding -->
+  <setting id="playback_mode">direct</setting>
+  <setting id="max_bitrate">0</setting>
+
+  <!-- 4K -->
+  <setting id="max_width">3840</setting>
+  <setting id="max_height">2160</setting>
+
+  <!-- Norsk UI-språk -->
+  <setting id="language">nb</setting>
+</settings>
