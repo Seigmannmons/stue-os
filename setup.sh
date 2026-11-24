@@ -177,29 +177,82 @@ if [[ -n "${LANGUAGE:-}" ]]; then
 fi
 
 # ═══════════════════════════════════════
-header "SYSTEMD-TJENESTER"
+header "KODI-NOTIFY OG TJENESTER"
 # ═══════════════════════════════════════
 
-QUAD_DIR="${HOME}/.config/containers/systemd"
-UNITS_SRC="/usr/share/stueos/quadlets"
+# kodi-notify konfig (Kodi OSD-varsler fra Radarr/Sonarr på fjernserver)
+cat > "${SERVICES_DIR}/kodi-notify.env" <<EOF
+KODI_HOST=localhost
+KODI_PORT=8080
+KODI_USER=kodi
+KODI_PASS=
+SERVICE_PORT=8085
+EOF
+ok "kodi-notify konfigurert"
 
-if [[ -d "$UNITS_SRC" ]]; then
-  mkdir -p "$QUAD_DIR"
-  cp -v "$UNITS_SRC"/*.container "$QUAD_DIR/" && ok "Podman quadlets kopiert"
-  systemctl --user daemon-reload
-  systemctl --user enable --now radarr.service  2>/dev/null && ok "Radarr startet" || warn "Radarr: se journalctl"
-  systemctl --user enable --now sonarr.service  2>/dev/null && ok "Sonarr startet" || warn "Sonarr: se journalctl"
-  systemctl --user enable --now bazarr.service  2>/dev/null && ok "Bazarr startet" || warn "Bazarr: se journalctl"
-else
-  warn "Quadlet-maler ikke funnet på ${UNITS_SRC} — start containere manuelt"
+# Start systemd-tjenester (installert i OCI-imaget)
+systemctl --user daemon-reload
+systemctl --user enable --now stueos-kodi-notify.service 2>/dev/null && ok "kodi-notify startet" || warn "kodi-notify: se journalctl"
+if [[ -n "${DENON_HOST:-}" ]]; then
+  systemctl --user enable --now stueos-denon.service 2>/dev/null && ok "Denon-tjeneste startet" || warn "Denon: se journalctl"
+fi
+if [[ -n "${BLUESOUND_HOST:-}" ]]; then
+  systemctl --user enable --now stueos-bluesound.service 2>/dev/null && ok "Bluesound-tjeneste startet" || warn "Bluesound: se journalctl"
 fi
 
-# Start Python-tjenester
-if [[ -f "${HOME}/.config/systemd/user/denon-control.service" ]]; then
-  systemctl --user enable --now denon-control.service 2>/dev/null && ok "Denon-tjeneste startet" || warn "Denon: se journalctl"
+# ═══════════════════════════════════════
+header "WEBHOOK-REGISTRERING"
+# ═══════════════════════════════════════
+
+# Registrer kodi-notify som webhook på fjern-Radarr/Sonarr
+STUEOS_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+KODI_NOTIFY_URL="http://${STUEOS_IP}:8085/notify"
+info "StueOS IP: ${STUEOS_IP} — webhook URL: ${KODI_NOTIFY_URL}"
+
+_register_webhook() {
+  local service_name="$1" base_url="$2" api_key="$3"
+  local endpoint="${base_url}/api/v3/notification"
+
+  local existing
+  existing=$(curl -sf --max-time 5 -H "X-Api-Key: ${api_key}" "${endpoint}" 2>/dev/null) \
+    || { warn "${service_name}: kan ikke nå ${base_url} — registrer webhook manuelt"; return; }
+
+  if echo "$existing" | grep -q '"stueos-kodi"'; then
+    ok "${service_name}: webhook allerede registrert"
+    return
+  fi
+
+  local payload
+  payload=$(printf '{
+  "name": "stueos-kodi",
+  "implementation": "Webhook",
+  "configContract": "WebhookSettings",
+  "fields": [
+    {"name": "url", "value": "%s"},
+    {"name": "method", "value": 1}
+  ],
+  "onDownload": true,
+  "onUpgrade": true,
+  "onGrab": false,
+  "includeHealthWarnings": false,
+  "tags": []
+}' "$KODI_NOTIFY_URL")
+
+  if curl -sf --max-time 10 -X POST \
+       -H "Content-Type: application/json" \
+       -H "X-Api-Key: ${api_key}" \
+       -d "$payload" "${endpoint}" >/dev/null 2>&1; then
+    ok "${service_name}: webhook registrert (${KODI_NOTIFY_URL})"
+  else
+    warn "${service_name}: webhook-registrering feilet — gjør det manuelt under Settings → Connect → Webhook"
+  fi
+}
+
+if [[ -n "${RADARR_URL:-}" && -n "${RADARR_API_KEY:-}" ]]; then
+  _register_webhook "Radarr" "${RADARR_URL}" "${RADARR_API_KEY}"
 fi
-if [[ -f "${HOME}/.config/systemd/user/bluesound-control.service" ]]; then
-  systemctl --user enable --now bluesound-control.service 2>/dev/null && ok "Bluesound-tjeneste startet" || warn "Bluesound: se journalctl"
+if [[ -n "${SONARR_URL:-}" && -n "${SONARR_API_KEY:-}" ]]; then
+  _register_webhook "Sonarr" "${SONARR_URL}" "${SONARR_API_KEY}"
 fi
 
 # ═══════════════════════════════════════
@@ -210,11 +263,12 @@ echo ""
 echo -e "${GRN}${BOLD}StueOS Fusion er klar!${RST}"
 echo ""
 echo -e "  ${AMB}Neste steg:${RST}"
-echo "  1. Start Kodi og konfigurer Plexkodiconnect / JellyCon add-ons"
-echo "  2. Åpne Radarr på http://localhost:7878 og Sonarr på http://localhost:8989"
-echo "  3. Test Denon-integrasjon: curl http://localhost:8041/status"
-[[ -n "${BLUESOUND_HOST:-}" ]] && \
-  echo "  4. Test Bluesound-integrasjon: curl http://localhost:8042/status"
+echo "  1. Start Kodi → Innstillinger → Tjenester → Kontroll → Aktiver HTTP (port 8080)"
+echo "  2. Test Kodi-varsler: curl -X POST http://localhost:8085/notify -H 'Content-Type: application/json' -d '{\"eventType\":\"Download\",\"movie\":{\"title\":\"Test\",\"year\":2024}}'"
+[[ -n "${RADARR_URL:-}" ]] && echo "  3. Radarr: ${RADARR_URL}"
+[[ -n "${SONARR_URL:-}" ]] && echo "  4. Sonarr: ${SONARR_URL}"
+[[ -n "${DENON_HOST:-}" ]] && echo "  5. Test Denon: curl http://localhost:8041/status"
+[[ -n "${BLUESOUND_HOST:-}" ]] && echo "  6. Test Bluesound: curl http://localhost:8042/status"
 echo ""
 echo -e "  ${BLU}Logg:${RST} ${LOG}"
 echo ""

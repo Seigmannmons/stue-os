@@ -1,4 +1,6 @@
 # qBittorrent — nedlastingsklient for Radarr og Sonarr
+# MERK: StueOS forventer at qBittorrent kjører på en dedikert server i nettverket.
+#       Denne quadlet-filen er kun for de som ønsker lokal kjøring på StueOS-maskinen.
 # WebUI: http://localhost:8080  (standard passord: adminadmin ved første oppstart)
 # Koble til Radarr/Sonarr: Settings → Download Clients → qBittorrent → localhost:8080
 

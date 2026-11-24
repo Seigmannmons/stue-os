@@ -1,4 +1,6 @@
 # Sonarr - TV Series management
+# MERK: StueOS forventer at Sonarr kjører på en dedikert server i nettverket.
+#       Denne quadlet-filen er kun for de som ønsker lokal kjøring på StueOS-maskinen.
 # Place in ~/.config/containers/systemd/sonarr.container
 
 [Unit]

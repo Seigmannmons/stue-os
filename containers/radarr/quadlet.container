@@ -1,4 +1,6 @@
 # Radarr - Movie management
+# MERK: StueOS forventer at Radarr kjører på en dedikert server i nettverket.
+#       Denne quadlet-filen er kun for de som ønsker lokal kjøring på StueOS-maskinen.
 # Place in ~/.config/containers/systemd/radarr.container
 # Manage with: systemctl --user start radarr
 

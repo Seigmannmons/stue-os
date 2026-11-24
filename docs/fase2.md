@@ -4,48 +4,35 @@ Forutsetter at Fase 1 (Bazzite NVIDIA installert) er fullført.
 
 ---
 
-## #11–#13 Radarr / Sonarr / Bazarr + qBittorrent
+## #11–#13 Radarr / Sonarr / qBittorrent — ekstern server
 
-### Start alle containers
+Radarr, Sonarr og qBittorrent kjører allerede på en annen maskin i nettverket.
+StueOS trenger kun å koble til dem og vise varsler via Kodi OSD.
 
-```bash
-# Opprett nødvendige mapper
-mkdir -p ~/media/{config/{radarr,sonarr,bazarr,qbittorrent,ntfy},movies,tv,downloads}
+### Oppgi adresser i installeringsveiviseren
 
-# Kopier quadlets
-QUAD_DIR=~/.config/containers/systemd
-mkdir -p "$QUAD_DIR"
-cp containers/radarr/quadlet.container     "$QUAD_DIR/radarr.container"
-cp containers/sonarr/quadlet.container     "$QUAD_DIR/sonarr.container"
-cp containers/bazarr/quadlet.container     "$QUAD_DIR/bazarr.container"
-cp containers/qbittorrent/quadlet.container "$QUAD_DIR/qbittorrent.container"
-cp containers/ntfy/quadlet.container       "$QUAD_DIR/ntfy.container"
+Fyll inn URL og API-nøkkel for Radarr og Sonarr i veiviseren (Steg 3 → Medieserver).
+`setup.sh` registrerer kodi-notify som webhook automatisk.
 
-# Start
-systemctl --user daemon-reload
-systemctl --user enable --now radarr sonarr bazarr qbittorrent ntfy
-```
+**Hent API-nøkkel:**  
+Radarr / Sonarr → Settings → General → Security → API Key
 
-### Konfigurasjon
+### Tilgang til fjernserver fra StueOS
 
-| Tjeneste | URL | Bruker/pass |
-|---|---|---|
-| Radarr | http://localhost:7878 | (sett ved første oppstart) |
-| Sonarr | http://localhost:8989 | (sett ved første oppstart) |
-| Bazarr | http://localhost:6767 | (sett ved første oppstart) |
-| qBittorrent | http://localhost:8080 | admin / adminadmin |
-| ntfy | http://localhost:2586 | (ingen) |
+| Tjeneste | URL (eksempel) |
+|---|---|
+| Radarr | http://192.168.1.X:7878 |
+| Sonarr | http://192.168.1.X:8989 |
+| qBittorrent | http://192.168.1.X:8080 |
 
-**Radarr og Sonarr — koble til qBittorrent:**
-Settings → Download Clients → ＋ qBittorrent → Host: `localhost`, Port: `8080`
+Erstatt `192.168.1.X` med faktisk IP til medieserveren din.
 
-**Bazarr — koble til Radarr og Sonarr:**
-Settings → Sonarr → Host: `localhost`, Port: `8989`, hent API-nøkkel fra Sonarr  
-Settings → Radarr → Host: `localhost`, Port: `7878`, hent API-nøkkel fra Radarr
+### Lokale quadlets (valgfri, kun ved lokal kjøring)
 
-**Bazarr — norsk undertekst:**
-Settings → Languages → Language filter: `Norsk (bokmål), English`  
-Settings → Providers → Legg til: OpenSubtitles.com (krev gratis konto)
+Vil du kjøre Radarr/Sonarr lokalt på StueOS istedenfor, finner du quadlet-filer
+under `containers/radarr/`, `containers/sonarr/` og `containers/qbittorrent/`.
+Dette er ikke standardoppsettet — det forventes at disse tjenestene allerede kjører
+på en dedikert server i nettverket.
 
 ---
 
@@ -132,11 +119,14 @@ curl http://localhost:8085/health
 Kodi → Innstillinger → Tjenester → Kontroll → Aktiver HTTP  
 Port: 8080, Brukernavn: kodi
 
-**Radarr/Sonarr Webhook:**  
+**Radarr/Sonarr Webhook** (registreres automatisk av `setup.sh`):  
 Settings → Connect → ＋ Webhook  
-- URL: `http://localhost:8085/notify`  
+- URL: `http://<stueos-ip>:8085/notify`  
 - Metode: POST  
 - Trigger: On Download, On Upgrade
+
+> `setup.sh` finner StueOS-maskinens IP automatisk og registrerer webhooks via Radarr/Sonarr REST API.
+> Manuell registrering er kun nødvendig om automatisk registrering feilet.
 
 ---
 
