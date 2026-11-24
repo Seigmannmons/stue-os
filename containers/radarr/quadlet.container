@@ -1,0 +1,27 @@
+# Radarr - Movie management
+# Place in ~/.config/containers/systemd/radarr.container
+# Manage with: systemctl --user start radarr
+
+[Unit]
+Description=Radarr - Movie Management
+After=network.target
+
+[Container]
+Image=lscr.io/linuxserver/radarr:latest
+AutoUpdate=registry
+ContainerName=radarr
+
+PublishPort=7878:7878
+Volume=%h/media/config/radarr:/config:Z
+Volume=%h/media/movies:/movies:Z
+Volume=%h/media/downloads:/downloads:Z
+
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Europe/Oslo
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

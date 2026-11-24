@@ -1,0 +1,49 @@
+# StueOS - Custom Bazzite image for living room PC
+# Fork of: ghcr.io/ublue-os/bazzite
+# Base: Bazzite with NVIDIA drivers
+
+ARG BASE_IMAGE="ghcr.io/ublue-os/bazzite-nvidia"
+ARG FEDORA_MAJOR_VERSION="40"
+
+FROM ${BASE_IMAGE}:latest
+
+# Install system packages via rpm-ostree
+RUN rpm-ostree install \
+    kodi \
+    kodi-addon-service-xbmc-lcd \
+    libbluray \
+    libbluray-utils \
+    libcec \
+    lirc \
+    lcdproc \
+    uxplay \
+    avahi \
+    nss-mdns \
+    mpv \
+    && ostree container commit
+
+# Install go2tv for Chromecast receiving
+RUN rpm-ostree install golang \
+    && go install github.com/alexballas/go2tv/cmd/go2tv@latest \
+    && ostree container commit
+
+# System user for services
+RUN useradd -r -s /sbin/nologin stueos-svc || true
+
+# Copy configuration files
+COPY config/lirc/           /etc/lirc/
+COPY config/kodi/           /etc/skel/.kodi/
+COPY services/              /opt/stueos/services/
+
+# Install Python services
+RUN pip3 install denonavr pybluos fastapi uvicorn \
+    && ostree container commit
+
+# Enable services
+COPY build/systemd/         /etc/systemd/system/
+RUN systemctl enable stueos-denon.service \
+    && systemctl enable stueos-bluesound.service \
+    && systemctl enable uxplay.service
+
+LABEL org.opencontainers.image.title="StueOS"
+LABEL org.opencontainers.image.description="Custom Bazzite image for living room PC"

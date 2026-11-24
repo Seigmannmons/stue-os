@@ -1,0 +1,26 @@
+# Bazarr - Automatic subtitle download
+# Place in ~/.config/containers/systemd/bazarr.container
+
+[Unit]
+Description=Bazarr - Subtitle Management
+After=radarr.service sonarr.service
+
+[Container]
+Image=lscr.io/linuxserver/bazarr:latest
+AutoUpdate=registry
+ContainerName=bazarr
+
+PublishPort=6767:6767
+Volume=%h/media/config/bazarr:/config:Z
+Volume=%h/media/movies:/movies:Z
+Volume=%h/media/tv:/tv:Z
+
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Europe/Oslo
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,26 @@
+# Sonarr - TV Series management
+# Place in ~/.config/containers/systemd/sonarr.container
+
+[Unit]
+Description=Sonarr - TV Series Management
+After=network.target
+
+[Container]
+Image=lscr.io/linuxserver/sonarr:latest
+AutoUpdate=registry
+ContainerName=sonarr
+
+PublishPort=8989:8989
+Volume=%h/media/config/sonarr:/config:Z
+Volume=%h/media/tv:/tv:Z
+Volume=%h/media/downloads:/downloads:Z
+
+Environment=PUID=1000
+Environment=PGID=1000
+Environment=TZ=Europe/Oslo
+
+[Service]
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

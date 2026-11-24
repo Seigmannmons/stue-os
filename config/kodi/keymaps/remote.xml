@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Kodi keymap for Antec Fusion Remote (iMon)
+  Handles IR remote buttons mapped via LIRC/imon driver.
+  Adjust button names to match your irw output.
+-->
+<keymap>
+  <global>
+    <remote>
+      <power>Quit</power>
+      <mute>Mute</mute>
+      <volumeplus>VolumeUp</volumeplus>
+      <volumeminus>VolumeDown</volumeminus>
+    </remote>
+  </global>
+  <FullscreenVideo>
+    <remote>
+      <play>Play</play>
+      <pause>Pause</pause>
+      <stop>Stop</stop>
+      <rewind>BigStepBack</rewind>
+      <forward>BigStepForward</forward>
+      <skipback>SkipPrevious</skipback>
+      <skipforward>SkipNext</skipforward>
+      <record>Screenshot</record>
+    </remote>
+  </FullscreenVideo>
+  <Home>
+    <remote>
+      <menu>ActivateWindow(Settings)</menu>
+    </remote>
+  </Home>
+</keymap>

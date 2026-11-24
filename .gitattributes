@@ -1,0 +1,7 @@
+# Normalize line endings for Linux target
+* text=auto eol=lf
+*.py text eol=lf
+*.xml text eol=lf
+*.conf text eol=lf
+*.container text eol=lf
+Containerfile text eol=lf
