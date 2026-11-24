@@ -1,58 +1,43 @@
 """
 StueOS Homey Integration for Kodi
-Triggers Homey flows on Player.OnPlay, Player.OnStop, Player.OnPause events.
-
-Configure HOMEY_HOST and flow IDs in addon settings.
+Kaller homey-control-tjenesten (port 8043) ved Kodi avspillingshendelser.
+Tjenesten håndterer Homey-kommunikasjon og konfigurasjon.
 """
+import urllib.request
 import xbmc
-import xbmcaddon
-import xbmcgui
-import requests
 
-ADDON = xbmcaddon.Addon()
+HOMEY_SVC = "http://localhost:8043"
 
 
-def get_setting(key):
-    return ADDON.getSetting(key)
-
-
-def trigger_flow(flow_id: str):
-    host = get_setting("homey_host")
-    token = get_setting("homey_token")
-    if not host or not flow_id:
-        return
+def _post(path: str) -> None:
     try:
-        requests.put(
-            f"http://{host}/api/flow/{flow_id}",
-            headers={"Authorization": f"Bearer {token}"},
-            timeout=3
+        req = urllib.request.Request(
+            f"{HOMEY_SVC}{path}",
+            method="POST",
+            headers={"Content-Type": "application/json"},
+            data=b"{}",
         )
-    except Exception as e:
-        xbmc.log(f"StueOS Homey: failed to trigger flow {flow_id}: {e}", xbmc.LOGWARNING)
+        urllib.request.urlopen(req, timeout=2)
+    except Exception as exc:
+        xbmc.log(f"[StueOS] homey-control {path} feilet: {exc}", xbmc.LOGWARNING)
 
 
-class PlayerMonitor(xbmc.Player):
+class StueOSPlayer(xbmc.Player):
     def onPlayBackStarted(self):
-        media_type = xbmc.getInfoLabel("Player.Content")
-        if "movie" in media_type.lower():
-            trigger_flow(get_setting("flow_movie_start"))
-            xbmc.log("StueOS Homey: triggered movie-start flow", xbmc.LOGDEBUG)
-        elif "episode" in media_type.lower():
-            trigger_flow(get_setting("flow_series_start"))
-            xbmc.log("StueOS Homey: triggered series-start flow", xbmc.LOGDEBUG)
+        _post("/kodi/play")
 
     def onPlayBackStopped(self):
-        trigger_flow(get_setting("flow_playback_stop"))
+        _post("/kodi/stop")
 
     def onPlayBackPaused(self):
-        trigger_flow(get_setting("flow_playback_pause"))
+        _post("/kodi/pause")
 
     def onPlayBackResumed(self):
-        trigger_flow(get_setting("flow_playback_resume"))
+        _post("/kodi/resume")
 
 
 monitor = xbmc.Monitor()
-player = PlayerMonitor()
+player = StueOSPlayer()
 
 while not monitor.abortRequested():
     monitor.waitForAbort(10)

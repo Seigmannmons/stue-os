@@ -1,0 +1,17 @@
+[Unit]
+Description=StueOS go2tv — cast lokal media til Chromecast
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stueos
+EnvironmentFile=-/etc/stueos/services/go2tv.env
+ExecStart=/usr/local/bin/go2tv -http ":3000"
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

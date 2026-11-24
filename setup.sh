@@ -127,6 +127,15 @@ else
   warn "Kodi advancedsettings.xml finnes allerede — hopper over"
 fi
 
+# Kodi brukerprofiler (generert av veiviseren)
+PROFILES_SRC="${STUEOS_HOME}/profiles.xml"
+if [[ -f "$PROFILES_SRC" ]]; then
+  cp "$PROFILES_SRC" "${KODI_UDATA}/profiles.xml"
+  ok "Kodi-profiler installert ($(grep -c '<profile>' "$PROFILES_SRC") profiler)"
+else
+  info "Ingen profiles.xml funnet — hopper over (kjør veiviseren for å generere)"
+fi
+
 # Kopi av sources.xml maler (mediebiblioteker)
 if [[ -n "${FILMS_DIR:-}" || -n "${TV_DIR:-}" ]]; then
   cat > "${KODI_UDATA}/sources.xml" <<EOF
@@ -204,6 +213,14 @@ SERVICE_PORT=8085
 EOF
 ok "kodi-notify konfigurert"
 
+# go2tv konfig (Chromecast web UI)
+STUEOS_IP_LOCAL=$(hostname -I 2>/dev/null | awk '{print $1}')
+cat > "${SERVICES_DIR}/go2tv.env" <<EOF
+# go2tv web UI: http://${STUEOS_IP_LOCAL:-localhost}:3000
+SERVICE_PORT=3000
+EOF
+ok "go2tv konfigurert (http://${STUEOS_IP_LOCAL:-localhost}:3000)"
+
 # Start systemd-tjenester (installert i OCI-imaget)
 systemctl --user daemon-reload
 systemctl --user enable --now stueos-kodi-notify.service 2>/dev/null && ok "kodi-notify startet" || warn "kodi-notify: se journalctl"
@@ -216,6 +233,8 @@ fi
 if [[ -n "${HOMEY_HOST:-}" && -n "${HOMEY_TOKEN:-}" ]]; then
   systemctl --user enable --now stueos-homey.service 2>/dev/null && ok "Homey-tjeneste startet" || warn "Homey: se journalctl"
 fi
+systemctl enable go2tv.service 2>/dev/null && ok "go2tv startet (Chromecast)" || warn "go2tv: se journalctl"
+systemctl enable uxplay.service 2>/dev/null && ok "UxPlay startet (AirPlay 2)" || warn "UxPlay: se journalctl"
 
 # ═══════════════════════════════════════
 header "WEBHOOK-REGISTRERING"

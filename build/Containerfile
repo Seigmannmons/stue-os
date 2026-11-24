@@ -46,6 +46,7 @@ RUN pip3 install --prefix=/usr \
 # ── Systemd-tjenester ─────────────────────────────────────────────────
 COPY build/systemd/ /usr/lib/systemd/system/
 COPY build/systemd-preset/50-stueos.preset /usr/lib/systemd/system-preset/
+COPY config/systemd-drop-ins/uxplay.service.d/ /usr/lib/systemd/system/uxplay.service.d/
 
 # ── Konfigurasjonsmaler ───────────────────────────────────────────────
 # Kopieres til /etc/skel slik at nye brukere får dem automatisk
