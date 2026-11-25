@@ -1,0 +1,14 @@
+[Unit]
+Description=StueOS: opprett standardbruker ved første oppstart
+After=local-fs.target
+Before=display-manager.service
+ConditionPathExists=!/var/lib/stueos-firstboot-user.done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/share/stueos/create-first-user.sh
+ExecStartPost=/bin/touch /var/lib/stueos-firstboot-user.done
+
+[Install]
+WantedBy=multi-user.target

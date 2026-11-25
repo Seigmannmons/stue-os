@@ -1,6 +1,7 @@
 # StueOS systemd service preset
 # Tjenester som aktiveres automatisk på første oppstart
 
+enable stueos-firstboot-user.service
 enable stueos-denon.service
 enable stueos-bluesound.service
 enable stueos-homey.service
